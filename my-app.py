@@ -16,7 +16,7 @@ trace.set_tracer_provider(
     )
 )
 tracer = trace.get_tracer(__name__)
-span_processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://jaeger-collector.observability.svc.cluster.local:4317", insecure=True))
+span_processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://otel-collector-collector:4317", insecure=True))
 trace.get_tracer_provider().add_span_processor(span_processor)
 
 # Set up metrics
@@ -24,7 +24,7 @@ metric.set_meter_provider(
     MeterProvider(
         metric_readers=[
             PeriodicExportingMetricReader(
-                OTLPMetricExporter(endpoint="http://jaeger-collector.observability.svc.cluster.local:4317", insecure=True)
+                OTLPMetricExporter(endpoint="http://otel-collector-collector:4317", insecure=True)
             )
         ]
     )
