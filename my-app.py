@@ -8,6 +8,13 @@ from opentelemetry.sdk.metrics import MeterProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logging.debug("Debug message")
+logging.info("Info message")
+logging.error("Error message")
+
 
 # Set up traces
 trace.set_tracer_provider(
