@@ -12,9 +12,11 @@ spec:
       labels:
         app: otel-python-app
     spec:
+      imagePullSecrets:
+      - name: dockerhub-secret
       containers:
       - name: otel-python-app
-        image: yourdockerhubusername/otel-python-app:latest
+        image: profed11/otel-python-app:latest
         ports:
         - containerPort: 8000
         env:
