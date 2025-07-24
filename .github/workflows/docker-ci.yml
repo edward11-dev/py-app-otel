@@ -28,6 +28,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: yourdockerhubusername/otel-python-app:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/otel-python-app:latest
 
 
