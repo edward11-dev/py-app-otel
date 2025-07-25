@@ -3,17 +3,30 @@ import random
 import logging
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import ConsoleSpanExporter, SimpleSpanProcessor
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.sdk.metrics import MeterProvider
-from opentelemetry.sdk.metrics.export import ConsoleMetricExporter, PeriodicExportingMetricReader
+from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
 from opentelemetry.metrics import get_meter_provider, set_meter_provider
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter as OTLPSpanExporterGRPC
+from opentelemetry.exporter.otlp.proto.grpc.metric_exporter import OTLPMetricExporter as OTLPMetricExporterGRPC
+from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter as OTLPSpanExporterHTTP
+from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter as OTLPMetricExporterHTTP
 from opentelemetry.trace import get_tracer_provider, set_tracer_provider
 
 # Configure Trace Provider
 trace.set_tracer_provider(TracerProvider())
 tracer_provider = trace.get_tracer_provider()
-span_processor = SimpleSpanProcessor(ConsoleSpanExporter())
-tracer_provider.add_span_processor(span_processor)
+
+# gRPC Exporter for Traces
+grpc_span_exporter = OTLPSpanExporterGRPC(endpoint="localhost:4317", insecure=True)
+grpc_span_processor = BatchSpanProcessor(grpc_span_exporter)
+tracer_provider.add_span_processor(grpc_span_processor)
+
+# HTTP Exporter for Traces
+http_span_exporter = OTLPSpanExporterHTTP(endpoint="localhost:4318/v1/traces")
+http_span_processor = BatchSpanProcessor(http_span_exporter)
+tracer_provider.add_span_processor(http_span_processor)
+
 tracer = tracer_provider.get_tracer(__name__)
 
 # Configure Logging
@@ -21,8 +34,15 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Configure Meter Provider
-reader = PeriodicExportingMetricReader(ConsoleMetricExporter())
-meter_provider = MeterProvider(metric_readers=[reader])
+# gRPC Exporter for Metrics
+grpc_metric_exporter = OTLPMetricExporterGRPC(endpoint="localhost:4317", insecure=True)
+grpc_reader = PeriodicExportingMetricReader(grpc_metric_exporter)
+
+# HTTP Exporter for Metrics
+http_metric_exporter = OTLPMetricExporterHTTP(endpoint="localhost:4318/v1/metrics")
+http_reader = PeriodicExportingMetricReader(http_metric_exporter)
+
+meter_provider = MeterProvider(metric_readers=[grpc_reader, http_reader])
 set_meter_provider(meter_provider)
 meter = get_meter_provider().get_meter(__name__)
 

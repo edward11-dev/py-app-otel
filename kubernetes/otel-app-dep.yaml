@@ -21,4 +21,4 @@ spec:
         - containerPort: 8000
         env:
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "http://otel-collector.monitoring.svc.cluster.local:4317"
+          value: "http://otel-collector-collector:4317"
