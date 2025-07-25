@@ -22,3 +22,5 @@ spec:
         env:
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
           value: "http://otel-collector-collector:4317"
+        - name: OTEL_SERVICE_NAME
+          value: "py-otel-app"

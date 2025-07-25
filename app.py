@@ -14,6 +14,7 @@ from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExp
 from opentelemetry.trace import get_tracer_provider, set_tracer_provider
 
 # Configure Trace Provider
+# The TracerProvider will automatically use the OTEL_SERVICE_NAME environment variable.
 trace.set_tracer_provider(TracerProvider())
 tracer_provider = trace.get_tracer_provider()
 
@@ -42,6 +43,7 @@ grpc_reader = PeriodicExportingMetricReader(grpc_metric_exporter)
 http_metric_exporter = OTLPMetricExporterHTTP()
 http_reader = PeriodicExportingMetricReader(http_metric_exporter)
 
+# The MeterProvider will automatically use the OTEL_SERVICE_NAME environment variable.
 meter_provider = MeterProvider(metric_readers=[grpc_reader, http_reader])
 set_meter_provider(meter_provider)
 meter = get_meter_provider().get_meter(__name__)

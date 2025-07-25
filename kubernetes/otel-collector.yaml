@@ -1,0 +1,48 @@
+apiVersion: opentelemetry.io/v1beta1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel-collector
+spec:
+  image: otel/opentelemetry-collector-contrib:0.93.0
+  mode: deployment
+  podAnnotations: {}
+  podLabels:
+    app: otel-col
+  config:
+    receivers:
+      otlp:
+        protocols:
+          grpc: {}
+          http: {}
+    processors:
+      batch: {}
+    exporters:
+      prometheus:
+        endpoint: 0.0.0.0:8888
+      otlp:
+        endpoint: jaeger-collector.observability.svc.cluster.local:4317
+        tls:
+          insecure: true
+      logging:
+        loglevel: debug
+    service:
+      telemetry:
+        metrics:
+          address: ":8889"
+      pipelines:
+        traces:
+          receivers:
+            - otlp
+          processors:
+            - batch
+          exporters:
+            - otlp
+            - logging
+        metrics:
+          receivers:
+            - otlp
+          processors:
+            - batch
+          exporters:
+            - prometheus
+            - logging
