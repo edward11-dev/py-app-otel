@@ -82,22 +82,35 @@ resource "aws_instance" "monitoring_server" {
 
               # Apply Kubernetes manifests
               sudo -u ubuntu /usr/local/bin/minikube kubectl -- apply -f /home/ubuntu/otel-collector.yaml
+              sudo -u ubuntu /usr/local/bin/minikube kubectl -- apply -f /home/ubuntu/otel-app-dep.yaml
+              sudo -u ubuntu /usr/local/bin/minikube kubectl -- apply -f /home/ubuntu/otel-app-svc.yaml
+              sudo -u ubuntu /usr/local/bin/minikube kubectl -- apply -f /home/ubuntu/otel-servicemonitor.yaml
               
               EOF
 
   provisioner "file" {
-    source      = "../ec2-monitoring-stack/otel-collector.yaml"
+    source      = "kubernetes/otel-collector.yaml"
     destination = "/home/ubuntu/otel-collector.yaml"
   }
 
   provisioner "file" {
-    source      = "../ec2-monitoring-stack/sample-app.yaml"
-    destination = "/home/ubuntu/sample-app.yaml"
+    source      = "kubernetes/otel-app-dep.yaml"
+    destination = "/home/ubuntu/otel-app-dep.yaml"
   }
 
   provisioner "file" {
-    source      = "../ec2-monitoring-stack/jaeger.yaml"
+    source      = "kubernetes/otel-app-svc.yaml"
+    destination = "/home/ubuntu/otel-app-svc.yaml"
+  }
+
+  provisioner "file" {
+    source      = "kubernetes/jaeger.yaml"
     destination = "/home/ubuntu/jaeger.yaml"
+  }
+
+  provisioner "file" {
+    source      = "kubernetes/otel-servicemonitor.yaml"
+    destination = "/home/ubuntu/otel-servicemonitor.yaml"
   }
 
   connection {
