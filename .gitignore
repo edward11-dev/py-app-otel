@@ -212,3 +212,4 @@ __marimo__/
 # Terraform
 *.tfstate
 *.tfstate.*
+.terraform/
