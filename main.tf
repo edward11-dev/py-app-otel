@@ -130,51 +130,6 @@ resource "aws_instance" "monitoring_server" {
   }
 }
 
-resource "aws_instance" "github_runner" {
-  ami           = "ami-053b0d53c279acc90" # Ubuntu 22.04 LTS
-  instance_type = "t2.micro"
-
-  key_name      = "otel-dep-key" # Make sure to replace this with your key pair name
-  vpc_security_group_ids = [aws_security_group.monitoring_sg.id]
-
-  user_data = <<-EOF
-              #!/bin/bash
-              sudo apt-get update -y
-              sudo apt-get install -y curl jq
-
-              # Create a directory for the runner
-              mkdir /home/ubuntu/actions-runner && cd /home/ubuntu/actions-runner
-              # Download the latest runner package
-              curl -o actions-runner-linux-x64-2.309.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.309.0/actions-runner-linux-x64-2.309.0.tar.gz
-              # Extract the installer
-              tar xzf ./actions-runner-linux-x64-2.309.0.tar.gz
-              # Change ownership to ubuntu user
-              sudo chown -R ubuntu:ubuntu /home/ubuntu/actions-runner
-              EOF
-
-  tags = {
-    Name = "GitHub-Runner"
-  }
-
-  provisioner "file" {
-    source      = "../scheduling-validator-agent/configure-runner.sh"
-    destination = "/home/ubuntu/configure-runner.sh"
-  }
-
-  # Make the script executable
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /home/ubuntu/configure-runner.sh"
-    ]
-  }
-
-  connection {
-    type        = "ssh"
-    user        = "ubuntu"
-    private_key = file("/Users/edwardhanks/Cline/.ssh/otel-dep-key.pem")
-    host        = self.public_ip
-  }
-}
 
 resource "aws_security_group" "monitoring_sg" {
   name        = "monitoring-sg"
@@ -254,8 +209,4 @@ resource "aws_security_group_rule" "allow_all_egress" {
 
 output "monitoring_server_private_ip" {
   value = aws_instance.monitoring_server.private_ip
-}
-
-output "github_runner_public_ip" {
-  value = aws_instance.github_runner.public_ip
 }
