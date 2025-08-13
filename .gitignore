@@ -210,6 +210,8 @@ marimo/_lsp/
 __marimo__/
 
 # Terraform
+# We want to commit the .terraform.lock.hcl file to ensure all team members
+# are using the same provider versions.
 *.tfstate
 *.tfstate.*
 .terraform/
